@@ -332,13 +332,13 @@ footer.site h5{color:#fff;font-family:'Inter',sans-serif;font-size:.82rem;text-t
 footer.site a{display:block;padding:5px 0;color:#aebfdb;font-size:.92rem;transition:color .2s,transform .2s}
 footer.site a:hover{color:var(--gold);transform:translateX(3px)}
 .foot-brand img{height:54px;background:#fff;padding:8px 12px;border-radius:12px;margin-bottom:16px}
-.foot-actions{display:flex;flex-direction:column;align-items:flex-start;gap:18px;margin-top:18px}
-.foot-socials{display:flex;align-items:center;gap:10px}
-.foot-soc{display:grid;place-items:center;width:40px;height:40px;border-radius:11px;
-  background:rgba(255,255,255,.07);color:#c7d3e6;transition:.2s}
-.foot-soc svg{width:19px;height:19px}
-.foot-soc:hover{background:var(--solar);color:var(--navy);transform:translateY(-2px)}
-.foot-soc-label{color:#8ea0bd;font-size:.86rem;font-weight:600;margin-left:4px}
+.foot-actions{display:flex;flex-direction:column;align-items:stretch;gap:18px;margin-top:18px}
+.foot-socials{display:flex;align-items:center;justify-content:center;gap:12px}
+.foot-soc{display:inline-flex;line-height:0;transition:transform .2s}
+.foot-soc svg{width:34px;height:34px;display:block}
+.foot-soc:hover{transform:translateY(-2px)}
+.foot-soc-label{color:#8ea0bd;font-size:.86rem;font-weight:600;margin-right:2px}
+.foot-cta{align-self:flex-start}
 .foot-cta{display:inline-flex;align-items:center;gap:9px;background:var(--solar);color:var(--navy)!important;
   font-weight:700;font-size:.92rem;padding:13px 24px;border-radius:999px;transition:.22s;box-shadow:0 10px 26px rgba(255,193,7,.22)}
 .foot-cta svg{width:18px;height:18px;color:var(--navy)}
