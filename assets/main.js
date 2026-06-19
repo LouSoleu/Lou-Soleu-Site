@@ -1,7 +1,60 @@
 /* ===== LOU SOLEU — interactions partagées ===== */
 var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* ===== Ambiance selon le moment de la journée ===== */
+var MOOD_KEY = 'lousoleu-mood';
+var MOOD_CYCLE = ['auto', 'aube', 'jour', 'crepuscule', 'nuit'];
+var MOOD_LABEL = { aube: 'Aube', jour: 'Jour', crepuscule: 'Crépuscule', nuit: 'Nuit' };
+var MOOD_ICONS = {
+  aube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="2" y1="18" x2="22" y2="18"/><line x1="12" y1="9" x2="12" y2="3"/><polyline points="9.5 5.5 12 3 14.5 5.5"/><line x1="5" y1="9" x2="4" y2="8"/><line x1="19" y1="9" x2="20" y2="8"/></svg>',
+  jour: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  crepuscule: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="2" y1="18" x2="22" y2="18"/><line x1="12" y1="3" x2="12" y2="9"/><polyline points="9.5 6.5 12 9 14.5 6.5"/><line x1="5" y1="9" x2="4" y2="8"/><line x1="19" y1="9" x2="20" y2="8"/></svg>',
+  nuit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>'
+};
+function moodFromHour(h) {
+  if (h >= 6 && h < 9) return 'aube';
+  if (h >= 9 && h < 17) return 'jour';
+  if (h >= 17 && h < 20) return 'crepuscule';
+  return 'nuit';
+}
+var moodPref;                                   // source de vérité en mémoire (robuste hors localStorage)
+try { moodPref = localStorage.getItem(MOOD_KEY) || 'auto'; } catch (e) { moodPref = 'auto'; }
+if (MOOD_CYCLE.indexOf(moodPref) === -1) moodPref = 'auto';
+function getMoodPref() { return moodPref; }
+function setMoodPref(p) { moodPref = p; try { localStorage.setItem(MOOD_KEY, p); } catch (e) {} }
+function resolveMood(pref) { return (pref && pref !== 'auto') ? pref : moodFromHour(new Date().getHours()); }
+function applyMoodPref(pref) { document.documentElement.setAttribute('data-mood', resolveMood(pref)); }
+/* applique immédiatement (avant le rendu du body) pour éviter tout flash */
+applyMoodPref(moodPref);
+
+function initMoodSwitcher() {
+  var navCta = document.querySelector('.nav-cta');
+  if (!navCta) return;
+  var btn = document.createElement('button');
+  btn.className = 'mood-switch';
+  btn.type = 'button';
+  navCta.insertBefore(btn, navCta.firstChild);
+
+  function render() {
+    var pref = getMoodPref(), m = resolveMood(pref);
+    btn.innerHTML = MOOD_ICONS[m] + (pref === 'auto' ? '<span class="auto-dot"></span>' : '');
+    var t = 'Ambiance : ' + MOOD_LABEL[m] + (pref === 'auto' ? ' · auto' : '') + ' — clic pour changer';
+    btn.title = t; btn.setAttribute('aria-label', t);
+  }
+  render();
+  btn.addEventListener('click', function () {
+    var next = MOOD_CYCLE[(MOOD_CYCLE.indexOf(getMoodPref()) + 1) % MOOD_CYCLE.length];
+    setMoodPref(next);
+    applyMoodPref(next); render();
+  });
+  /* en mode auto : réévalue périodiquement (changement de créneau horaire) */
+  setInterval(function () { if (getMoodPref() === 'auto') { applyMoodPref('auto'); render(); } }, 300000);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+
+  initMoodSwitcher();
+
 
   /* Mobile drawer */
   var burger = document.querySelector('.burger');

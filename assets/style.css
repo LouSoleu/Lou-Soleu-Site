@@ -37,11 +37,16 @@
   --glow-cyan:0 16px 40px rgba(6,182,212,.32);
   --maxw:1180px;
 
-  /* Dégradé « magic » : nuit + lueur solaire + halo cyan */
+  /* Bandeaux pleine largeur : lever de soleil lumineux (nuit ~15% max) */
   --magic:
-    radial-gradient(820px 460px at 82% -12%, rgba(255,193,7,.26), transparent 56%),
-    radial-gradient(700px 460px at 6% 116%, rgba(6,182,212,.20), transparent 52%),
-    linear-gradient(158deg,#0B1B3A 0%, #0E2350 52%, #071427 100%);
+    linear-gradient(110deg,#c2410c 0%, #f97316 50%, #fde047 100%);
+  /* Fond nuit (petits encarts & carte de marque) */
+  --night:
+    radial-gradient(700px 440px at 90% 0%, rgba(255,176,92,.16), transparent 58%),
+    linear-gradient(140deg,#0B1B3A 0%, #0E2350 55%, #071427 100%);
+
+  /* Voile du hero plein écran (varie selon le moment de la journée) */
+  --hero-overlay:linear-gradient(105deg, rgba(6,16,35,.74) 0%, rgba(9,22,48,.40) 40%, rgba(11,27,58,.10) 74%, rgba(11,27,58,0) 100%);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -79,7 +84,7 @@ h1,h2,h3,h4{font-family:'Manrope',sans-serif;line-height:1.1;color:var(--navy-in
   transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s,background .25s,color .25s;
   font-family:'Inter',sans-serif;overflow:hidden;will-change:transform}
 .btn svg{position:relative;z-index:1}
-.btn-primary{background:linear-gradient(135deg,var(--solar),var(--solar-deep));color:var(--navy-ink);
+.btn-primary{background:linear-gradient(135deg,var(--solar),var(--solar-deep));color:#0B1B3A;
   box-shadow:var(--glow-solar)}
 .btn-primary:hover{transform:translateY(-3px) scale(1.015);box-shadow:0 22px 48px rgba(255,193,7,.52)}
 /* reflet lumineux qui balaye le bouton primaire */
@@ -156,9 +161,9 @@ header.nav.scrolled .brand img{height:62px}
 
 /* ---------- Hero (image plein écran) ---------- */
 .hero{position:relative;color:#fff;overflow:hidden;min-height:90vh;display:flex;align-items:center;
-  background-image:linear-gradient(115deg, rgba(7,20,39,.94) 0%, rgba(11,27,58,.80) 42%, rgba(11,27,58,.34) 100%),
+  background-image:var(--hero-overlay),
     url("https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=1920&q=80");
-  background-size:cover;background-position:center}
+  background-size:cover;background-position:center;transition:background-image .6s ease}
 /* halo solaire animé en fond de hero */
 .hero::before{content:"";position:absolute;top:-20%;right:-10%;width:60vw;height:60vw;border-radius:50%;
   background:radial-gradient(circle,rgba(255,193,7,.22),transparent 62%);filter:blur(20px);
@@ -169,6 +174,11 @@ header.nav.scrolled .brand img{height:62px}
 @keyframes floatGlow{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-3%,4%) scale(1.08)}}
 .hero .wrap{position:relative;z-index:2;padding:120px 24px 128px;max-width:var(--maxw);will-change:transform}
 .hero-inner{max-width:680px}
+/* lisibilité garantie sur la photo, quelle que soit l'ambiance/la luminosité */
+.hero .eyebrow{color:#FFE08A;text-shadow:0 1px 5px rgba(0,0,0,.6),0 0 2px rgba(0,0,0,.45)}
+.hero .eyebrow::before{background:linear-gradient(90deg,var(--solar),var(--cyan-soft));box-shadow:0 0 6px rgba(0,0,0,.4)}
+.hero h1{text-shadow:0 2px 16px rgba(0,0,0,.42)}
+.hero p.sub{text-shadow:0 1px 10px rgba(0,0,0,.38)}
 .hero h1{color:#fff;font-size:clamp(2.4rem,5.2vw,4.1rem);letter-spacing:-.025em;line-height:1.06}
 .hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--solar),var(--cyan-soft));
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -179,15 +189,62 @@ header.nav.scrolled .brand img{height:62px}
 .hero-actions{display:flex;flex-wrap:wrap;gap:14px}
 @media(max-width:900px){.hero{min-height:auto}.hero .wrap{padding:80px 24px 88px}}
 
-/* ---------- Generic page hero ---------- */
-.page-hero{background:var(--magic);color:#fff;padding:76px 0 88px;position:relative;overflow:hidden}
-.page-hero::before{content:"";position:absolute;top:-30%;right:-5%;width:40vw;height:40vw;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,193,7,.16),transparent 62%);pointer-events:none}
+/* ---------- Generic page hero / bannières « lever de soleil » ---------- */
+.page-hero{
+  position:relative;overflow:hidden;isolation:isolate;
+  padding:96px 0 108px;color:var(--navy-ink);
+  background:
+    /* éclat blanc chaud — cœur du soleil en haut à droite */
+    radial-gradient(680px 460px at 90% -34%, rgba(255,255,255,.62), transparent 60%),
+    /* dégradé lever de soleil */
+    var(--magic),
+    /* filet d'accent solaire→cyan tout en bas */
+    linear-gradient(90deg,var(--solar),var(--cyan)) bottom/100% 4px no-repeat;
+}
+/* rayons de soleil — couche conique masquée vers le coin haut-droit */
+.page-hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-conic-gradient(from -8deg at 90% -8%,
+    rgba(255,255,255,.20) 0deg 3.4deg, transparent 3.4deg 12deg);
+  -webkit-mask:radial-gradient(720px 600px at 90% -8%, #000 0%, transparent 72%);
+          mask:radial-gradient(720px 600px at 90% -8%, #000 0%, transparent 72%);
+  opacity:.65;
+}
+/* halo lumineux flottant (cohérent avec le hero d'accueil) */
+.page-hero::after{
+  content:"";position:absolute;top:-26%;right:-4%;width:380px;height:380px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 42% 42%, rgba(255,255,255,.9), rgba(255,224,138,.55) 42%, rgba(255,193,7,0) 72%);
+  filter:blur(3px);animation:floatGlow 16s ease-in-out infinite}
 .page-hero .wrap{position:relative;z-index:1}
-.page-hero .crumb{font-size:.82rem;color:#9fb6dd;margin-bottom:18px}
-.page-hero .crumb a:hover{color:#fff}
-.page-hero h1{color:#fff;font-size:clamp(2rem,4vw,3rem);max-width:760px}
-.page-hero p{color:#cfdcf2;font-size:1.12rem;max-width:640px;margin-top:18px}
+/* fil d'Ariane en pastille de verre */
+.page-hero .crumb{display:inline-block;font-size:.8rem;font-weight:600;margin-bottom:20px;
+  color:var(--navy);background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.7);
+  padding:6px 15px;border-radius:999px;backdrop-filter:blur(6px)}
+.page-hero .crumb a{color:rgba(13,22,44,.75)}
+.page-hero .crumb a:hover{color:var(--navy-ink)}
+.page-hero h1{color:var(--navy-ink);font-size:clamp(2.05rem,4.2vw,3.05rem);max-width:760px;
+  text-shadow:0 1px 0 rgba(255,255,255,.28)}
+.page-hero p{color:rgba(15,18,30,.84);font-size:1.13rem;max-width:640px;margin-top:18px}
+/* entrée en fondu-montée (désactivée par prefers-reduced-motion) */
+.page-hero .crumb{animation:heroRise .7s cubic-bezier(.2,.7,.2,1) both}
+.page-hero h1{animation:heroRise .7s cubic-bezier(.2,.7,.2,1) .08s both}
+.page-hero p{animation:heroRise .7s cubic-bezier(.2,.7,.2,1) .16s both}
+@keyframes heroRise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* variante bleu nuit (page Simulateur) — ciel étoilé plutôt qu'aube */
+.page-hero.dark{color:#fff;
+  background:
+    radial-gradient(640px 440px at 90% -30%, rgba(255,193,7,.20), transparent 60%),
+    var(--night),
+    linear-gradient(90deg,var(--solar),var(--cyan)) bottom/100% 4px no-repeat}
+.page-hero.dark::before{background:repeating-conic-gradient(from -8deg at 90% -8%,
+    rgba(255,255,255,.12) 0deg 3.4deg, transparent 3.4deg 12deg);opacity:.5}
+.page-hero.dark::after{background:radial-gradient(circle at 42% 42%, rgba(255,224,138,.55), rgba(255,193,7,0) 70%)}
+.page-hero.dark .crumb{color:#dbe6f7;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16)}
+.page-hero.dark .crumb a{color:#9fb6dd}
+.page-hero.dark .crumb a:hover{color:#fff}
+.page-hero.dark h1{color:#fff;text-shadow:none}
+.page-hero.dark p{color:#cfdcf2}
 
 /* ---------- Cards / grids ---------- */
 .grid{display:grid;gap:26px}
@@ -234,27 +291,44 @@ a.card:hover{border-color:transparent}
 }
 
 /* carte de marque (remplace les visuels) */
-.brandcard{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--magic);
-  min-height:360px;display:grid;place-items:center;text-align:center;padding:42px;box-shadow:var(--shadow)}
+.brandcard{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--night);
+  min-height:360px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;
+  text-align:center;padding:30px 30px 26px;box-shadow:var(--shadow)}
 .brandcard::after{content:"";position:absolute;inset:0;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='38'%3E%3Cpath d='M0 37h38M37 0v38' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='1'/%3E%3C/svg%3E");pointer-events:none}
 .brandcard .plate{position:relative;z-index:2;background:#fff;border-radius:20px;padding:30px 34px;box-shadow:0 24px 60px rgba(7,20,39,.34)}
 .brandcard .plate img{height:104px;width:auto;margin:0 auto}
-.brandcard .tag{position:relative;z-index:2;margin-top:22px;color:var(--gold);font-weight:700;
+.brandcard .tag{position:relative;z-index:2;margin-top:0;color:var(--gold);font-weight:700;will-change:auto;
   letter-spacing:.04em;font-size:.92rem;text-transform:uppercase}
 
+/* scène illustrée « maison solaire » (remplace la plaque logo) */
+.bc-scene{position:relative;z-index:2;width:100%;max-width:520px;height:auto;color:var(--solar)}
+.bc-glow{transform-box:fill-box;transform-origin:center;animation:bcPulse 6s ease-in-out infinite}
+.bc-rays{transform-box:fill-box;transform-origin:center;animation:bcSpin 64s linear infinite}
+.bc-flow{stroke-dasharray:5 9;animation:bcFlow 1.1s linear infinite}
+.bc-flow.alt{animation-duration:1.5s}
+.bc-bolt{animation:bcWin 2.4s ease-in-out infinite}
+.bc-win{animation:bcWin 4s ease-in-out infinite}
+.bc-win:nth-of-type(2){animation-delay:.6s}
+.bc-win:nth-of-type(3){animation-delay:1.2s}
+@keyframes bcSpin{to{transform:rotate(360deg)}}
+@keyframes bcPulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:.85;transform:scale(1.1)}}
+@keyframes bcFlow{to{stroke-dashoffset:-28}}
+@keyframes bcWin{0%,100%{opacity:.4}50%{opacity:1}}
+
 /* stats band */
-.stats{background:var(--magic);color:#fff;position:relative;overflow:hidden}
+.stats{background:var(--magic);color:var(--navy-ink);position:relative;overflow:hidden}
 .stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding:58px 24px;text-align:center;position:relative;z-index:1}
-.stat .n{font-family:'Manrope',sans-serif;font-size:2.7rem;font-weight:800;line-height:1;
-  background:linear-gradient(120deg,var(--solar),var(--cyan-soft));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.stat .l{color:#c2d2ec;font-size:.92rem;margin-top:8px}
+.stat .n{font-family:'Manrope',sans-serif;font-size:2.7rem;font-weight:800;line-height:1;color:var(--navy-ink)}
+.stat .l{color:rgba(13,20,40,.78);font-size:.92rem;margin-top:8px}
 @media(max-width:620px){.stats .wrap{grid-template-columns:repeat(2,1fr)}}
 
 /* steps */
 .steps{counter-reset:s;display:grid;gap:22px}
-.step{display:grid;grid-template-columns:60px 1fr;gap:20px;align-items:start;background:#fff;border:1px solid var(--line);
-  border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow-sm)}
+.step{display:grid;grid-template-columns:52px 1fr;gap:20px;align-items:center;background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius);padding:22px 26px;box-shadow:var(--shadow-sm)}
+.step>div{min-width:0}
+.step h4{margin-bottom:4px}
 .step::before{counter-increment:s;content:counter(s);width:52px;height:52px;border-radius:50%;
   background:linear-gradient(135deg,var(--navy),var(--navy-deep));color:var(--solar);display:grid;place-items:center;
   font-family:'Manrope',sans-serif;font-size:1.4rem;font-weight:800}
@@ -272,7 +346,7 @@ a.card:hover{border-color:transparent}
 .callout{background:linear-gradient(120deg,var(--cream),#fff);border:1px solid var(--line);
   border-left:5px solid var(--solar);border-radius:16px;padding:22px 26px;box-shadow:var(--shadow-sm)}
 .callout b{color:var(--navy-ink)}
-.callout.navy{background:var(--magic);color:#e7eefb;border-left-color:var(--cyan)}
+.callout.navy{background:var(--night);color:#e7eefb;border-left-color:var(--cyan)}
 .callout.navy b{color:#fff}
 
 /* table */
@@ -308,12 +382,16 @@ a.card:hover{border-color:transparent}
 .quote .who span{display:block;color:var(--muted);font-weight:500;font-size:.84rem}
 
 /* CTA band */
-.cta-band{background:var(--magic);color:#fff;border-radius:28px;padding:58px;text-align:center;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
-.cta-band::before{content:"";position:absolute;top:-40%;right:-8%;width:36vw;height:36vw;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,193,7,.20),transparent 62%);pointer-events:none}
-.cta-band h2{color:#fff;font-size:clamp(1.8rem,3.4vw,2.6rem);position:relative;z-index:1}
-.cta-band p{color:#cfdcf2;max-width:560px;margin:14px auto 28px;position:relative;z-index:1}
+.cta-band{background:var(--magic);color:var(--navy-ink);border-radius:28px;padding:58px;text-align:center;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.cta-band::before{content:"";position:absolute;top:-40%;left:-8%;width:36vw;height:36vw;border-radius:50%;
+  background:radial-gradient(circle,rgba(9,18,42,.28),transparent 62%);pointer-events:none}
+.cta-band h2{color:var(--navy-ink);font-size:clamp(1.8rem,3.4vw,2.6rem);position:relative;z-index:1}
+.cta-band p{color:rgba(17,18,30,.82);max-width:560px;margin:14px auto 28px;position:relative;z-index:1}
 .cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.cta-band .btn-primary{background:var(--navy);color:#fff;box-shadow:0 12px 28px rgba(7,20,39,.30)}
+.cta-band .btn-primary:hover{background:var(--navy-deep)}
+.cta-band .btn-ghost{border-color:rgba(11,27,58,.55);color:var(--navy-ink)}
+.cta-band .btn-ghost:hover{background:rgba(11,27,58,.10)}
 
 /* pill tags */
 .pill{display:inline-flex;align-items:center;gap:7px;background:var(--sand);color:var(--amber);
@@ -369,6 +447,100 @@ footer.site a:hover{color:var(--gold);transform:translateX(3px)}
 /* small print */
 .note{font-size:.8rem;color:var(--muted)}
 hr.soft{border:none;border-top:1px solid var(--line);margin:40px 0}
+
+/* formulaire Tally (iframe transparent) : toujours posé sur un fond clair,
+   sinon son texte sombre devient illisible en mode nuit */
+iframe[data-tally-src]{background:#fff;border-radius:14px}
+
+/* =========================================================
+   AMBIANCES SELON LE MOMENT DE LA JOURNÉE
+   (pilotées par html[data-mood] — voir main.js)
+   ========================================================= */
+
+/* transitions douces lors du changement d'ambiance */
+body{transition:background-color .55s ease,color .5s ease}
+.card,.faq-item,.quote,.form-card,.step,.tbl,.diagram,.callout,
+.field input,.field select,.field textarea,.mood-switch,.simu-panel,.metric{
+  transition:background-color .55s ease,border-color .55s ease,color .5s ease,
+             box-shadow .3s ease,transform .3s cubic-bezier(.2,.7,.2,1)}
+
+/* sélecteur d'ambiance (injecté dans la nav par main.js) */
+.mood-switch{position:relative;display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;
+  border:1.5px solid var(--line);background:var(--surface);color:var(--amber);cursor:pointer;flex:0 0 auto}
+.mood-switch:hover{color:var(--navy);border-color:var(--cyan);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.mood-switch:active{transform:translateY(0) scale(.94)}
+.mood-switch svg{width:21px;height:21px}
+.mood-switch .auto-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 0 2px var(--surface)}
+
+/* ---------- AUBE (≈ 6–9 h) : ciel rosé & or doux ---------- */
+html[data-mood="aube"]{
+  --bg:#FFFFFF; --bg-soft:#FFF2F1; --surface:#FFFFFF; --cream:#FFF6F2;
+  --text:#3B2A30; --muted:#8C7480; --navy-ink:#2E2030; --navy:#3A2B46; --navy-deep:#241828; --line:#F2E2DE;
+  --amber:#B14A63; --solar:#FFC371; --solar-deep:#F0A65A; --gold:#F6B36B; --cyan:#E58BA0; --cyan-soft:#F2A6B5;
+  --glow-solar:0 16px 40px rgba(255,170,120,.40);
+  --magic:linear-gradient(118deg,#fbc6bd 0%,#f7a8ab 36%,#ffcf9e 70%,#fff0cf 100%);
+  --hero-overlay:linear-gradient(105deg, rgba(58,28,46,.72) 0%, rgba(150,82,96,.42) 42%, rgba(255,182,150,.12) 80%, rgba(255,200,170,0) 100%);
+}
+
+/* ---------- CRÉPUSCULE (≈ 17–20 h) : orange chaud sunset ---------- */
+html[data-mood="crepuscule"]{
+  --bg:#FFFBF6; --bg-soft:#FBEEDF; --surface:#FFFFFF; --cream:#FFF6EA;
+  --text:#3A2A1E; --muted:#8A6E54; --navy-ink:#2E1E12; --navy:#3A2517; --navy-deep:#221409; --line:#F1E2CE;
+  --amber:#B5530A; --solar:#FF9A2E; --solar-deep:#F07E1E; --gold:#FF9A2E; --cyan:#E0662C; --cyan-soft:#F0894A;
+  --glow-solar:0 16px 40px rgba(255,140,40,.40);
+  --magic:linear-gradient(120deg,#f97316 0%,#fb923c 40%,#fdba74 70%,#fde68a 100%);
+  --hero-overlay:linear-gradient(105deg, rgba(60,24,10,.78) 0%, rgba(150,60,20,.45) 42%, rgba(234,88,12,.12) 82%, rgba(245,158,11,0) 100%);
+}
+
+/* ---------- NUIT (≈ 20–6 h) : vrai mode sombre ---------- */
+html[data-mood="nuit"]{
+  --bg:#0B1426; --bg-soft:#111E38; --surface:#13203B; --cream:#15233F;
+  --text:#D7E1F3; --muted:#9BAFD0; --navy-ink:#FFFFFF; --navy:#1C2C4D; --navy-deep:#0A1730; --line:#26385C;
+  --amber:#FFC107; --solar:#FFC107; --solar-deep:#E6A100; --gold:#FFC107; --cyan:#22D3EE; --cyan-soft:#67E8F9;
+  --shadow-sm:0 4px 18px rgba(0,0,0,.35); --shadow:0 22px 55px rgba(0,0,0,.5); --shadow-lg:0 34px 80px rgba(0,0,0,.6);
+  --magic:radial-gradient(640px 440px at 90% -30%, rgba(255,193,7,.16), transparent 60%),
+          linear-gradient(140deg,#0B1B3A 0%,#0E2350 55%,#071427 100%);
+  --hero-overlay:linear-gradient(105deg, rgba(2,8,20,.90) 0%, rgba(5,12,28,.64) 45%, rgba(8,16,34,.32) 78%, rgba(8,16,34,.12) 100%);
+}
+/* nuit — surfaces & chrome qui codaient un blanc en dur */
+html[data-mood="nuit"] header.nav{background:rgba(9,17,33,.82);border-bottom-color:var(--line)}
+html[data-mood="nuit"] header.nav.scrolled{background:rgba(9,17,33,.95)}
+/* logo (texte/oiseau bleu nuit) : plaque claire pour rester lisible la nuit */
+html[data-mood="nuit"] .brand img{background:#fff;padding:5px 11px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+html[data-mood="nuit"] .menu>li>a:hover{color:#fff}
+html[data-mood="nuit"] .dropdown,
+html[data-mood="nuit"] .drawer-panel{background:#13203B;border-color:var(--line)}
+html[data-mood="nuit"] .step,
+html[data-mood="nuit"] .tbl,
+html[data-mood="nuit"] .faq-item,
+html[data-mood="nuit"] .quote,
+html[data-mood="nuit"] .form-card,
+html[data-mood="nuit"] .simu-panel{background:var(--surface);border-color:var(--line)}
+html[data-mood="nuit"] .diagram{background:linear-gradient(180deg,#13203B,#0E1A30)}
+html[data-mood="nuit"] .metric{background:linear-gradient(180deg,#15233F,#101C34);border-color:var(--line)}
+html[data-mood="nuit"] .callout{background:linear-gradient(120deg,#15233F,#101C34);border-color:var(--line)}
+html[data-mood="nuit"] .faq-item.open{border-color:#33507f}
+html[data-mood="nuit"] .tbl tbody tr:hover{background:#1a2c50}
+html[data-mood="nuit"] .field input,
+html[data-mood="nuit"] .field select,
+html[data-mood="nuit"] .field textarea{background:#0E1A30;color:var(--text);border-color:var(--line)}
+html[data-mood="nuit"] .btn-navy{border:1px solid var(--line)}
+/* nuit — bannières internes adoptent le rendu sombre */
+html[data-mood="nuit"] .page-hero{color:#fff;
+  background:radial-gradient(640px 440px at 90% -30%, rgba(255,193,7,.16), transparent 60%),
+    var(--magic),linear-gradient(90deg,var(--solar),var(--cyan)) bottom/100% 4px no-repeat}
+html[data-mood="nuit"] .page-hero .crumb{color:#dbe6f7;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16)}
+html[data-mood="nuit"] .page-hero .crumb a{color:#9fb6dd}
+html[data-mood="nuit"] .page-hero h1{color:#fff;text-shadow:none}
+html[data-mood="nuit"] .page-hero p{color:#cfdcf2}
+/* nuit — textes sur fonds --magic (stats / CTA) repassent en clair */
+html[data-mood="nuit"] .stat .l{color:#bcccea}
+html[data-mood="nuit"] .cta-band p{color:#cfdcf2}
+html[data-mood="nuit"] .cta-band .btn-primary{background:linear-gradient(135deg,var(--solar),var(--solar-deep));color:#0B1B3A}
+html[data-mood="nuit"] .cta-band .btn-primary:hover{background:linear-gradient(135deg,#FFD24D,var(--solar))}
+html[data-mood="nuit"] .cta-band .btn-ghost{border-color:rgba(255,255,255,.5);color:#fff}
+html[data-mood="nuit"] .cta-band .btn-ghost:hover{background:rgba(255,255,255,.14)}
 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce){
