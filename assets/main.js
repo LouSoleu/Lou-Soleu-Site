@@ -242,16 +242,27 @@ function initSimulateur() {
     var orientation = +$('orientation').value;
     var autoconsoRate = +$('autoconso').value / 100;
     var avecBatterie = $('batterie') ? $('batterie').checked : false;
+    var directMode = $('kwc-direct-mode') ? $('kwc-direct-mode').checked : false;
+
+    /* Bascule d'affichage : saisie directe kWc <-> estimation par la surface */
+    if ($('group-kwc-direct')) $('group-kwc-direct').style.display = directMode ? 'block' : 'none';
+    if ($('group-surface')) $('group-surface').style.display = directMode ? 'none' : 'block';
 
     $('val-conso-annuelle').innerText = conso.toLocaleString('fr-FR');
     $('val-autoconso').innerText = Math.round(autoconsoRate * 100);
 
-    /* Dimensionnement : ~ couvrir la conso, capé entre 3 et 12 kWc (villa) */
-    var kwc = Math.max(3, Math.min(12, Math.round((conso / 1300) * 2) / 2));
-    if ($('surface-toit')) {
-      var surf = +$('surface-toit').value;
-      $('val-surface').innerText = surf;
-      kwc = Math.min(kwc, parseFloat((surf * 0.21).toFixed(1)));
+    /* Puissance : soit saisie directe (kWc), soit dimensionnee sur la conso puis plafonnee par la surface */
+    var kwc;
+    if (directMode) {
+      kwc = +$('kwc-direct').value;
+      if ($('val-kwc-direct')) $('val-kwc-direct').innerText = kwc.toFixed(1);
+    } else {
+      kwc = Math.max(3, Math.min(12, Math.round((conso / 1300) * 2) / 2));
+      if ($('surface-toit')) {
+        var surf = +$('surface-toit').value;
+        $('val-surface').innerText = surf;
+        kwc = Math.min(kwc, parseFloat((surf * 0.21).toFixed(1)));
+      }
     }
     if ($('val-kwc')) $('val-kwc').innerText = kwc.toFixed(1);
 
@@ -333,7 +344,7 @@ function initSimulateur() {
     });
   }
 
-  ['conso-annuelle', 'autoconso', 'orientation', 'batterie', 'surface-toit'].forEach(function (id) {
+  ['conso-annuelle', 'autoconso', 'orientation', 'batterie', 'surface-toit', 'kwc-direct-mode', 'kwc-direct'].forEach(function (id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener('input', run);
     if (el && el.tagName === 'SELECT') el.addEventListener('change', run);

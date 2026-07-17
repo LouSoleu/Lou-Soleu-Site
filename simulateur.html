@@ -106,6 +106,17 @@
       <h2 class="serif" style="font-size:1.4rem;margin-bottom:6px">Votre profil</h2>
       <p class="note" style="margin-bottom:24px">Ajustez les curseurs : les résultats se mettent à jour en direct.</p>
 
+      <div class="switch" style="margin-bottom:24px">
+        <input type="checkbox" id="kwc-direct-mode">
+        <label for="kwc-direct-mode"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg> &nbsp;Je connais la puissance à installer (saisie directe en kWc)</label>
+      </div>
+
+      <div class="ctrl" id="group-kwc-direct" style="display:none">
+        <div class="ctrl-head"><span>Puissance à installer</span><span class="val-badge"><span id="val-kwc-direct">6.0</span> kWc</span></div>
+        <input type="range" id="kwc-direct" min="3" max="15" step="0.5" value="6">
+        <small>Vous fixez la puissance ; la surface de toiture n'est plus prise en compte.</small>
+      </div>
+
       <div class="ctrl">
         <div class="ctrl-head"><span>Consommation d'électricité annuelle</span><span class="val-badge"><span id="val-conso-annuelle">8 000</span> kWh/an</span></div>
         <input type="range" id="conso-annuelle" min="2000" max="30000" step="500" value="8000">
@@ -118,7 +129,7 @@
         <small>Une batterie augmente automatiquement ce taux</small>
       </div>
 
-      <div class="ctrl">
+      <div class="ctrl" id="group-surface">
         <div class="ctrl-head"><span>Surface de toiture disponible</span><span class="val-badge"><span id="val-surface">40</span> m²</span></div>
         <input type="range" id="surface-toit" min="12" max="120" step="2" value="40">
         <small>Limite la puissance installable</small>
